@@ -29,7 +29,6 @@ set(NEBULA_MAPPER_SOURCES
         src/parser/json_parser.cpp
         src/parser/yaml_parser.cpp
         src/parser/mapping_parser.cpp
-        src/parser/validation/mapping_validation.cpp
         src/transformer/transform_engine.cpp
         src/graph/schema_manager.cpp
         src/graph/statement_generator.cpp
@@ -37,47 +36,28 @@ set(NEBULA_MAPPER_SOURCES
 
 # Define library headers
 set(NEBULA_MAPPER_HEADERS
-        include/common/result.hpp
         include/parser/json_parser.hpp
         include/parser/yaml_parser.hpp
         include/parser/mapping_parser.hpp
-        include/parser/mapping_errors.hpp
-        include/parser/validation/mapping_validation.hpp
         include/transformer/transform_engine.hpp
         include/transformer/transform_engine.inl
         include/graph/schema_manager.hpp
         include/graph/statement_generator.hpp
+        src/parser/json_parser.cpp
+        src/parser/yaml_parser.cpp
+        src/parser/mapping_parser.cpp
+        src/transformer/transform_engine.cpp
+        src/graph/schema_manager.cpp
+        src/graph/statement_generator.cpp
+        include/graph/schema_manager.hpp
+        include/graph/statement_generator.hpp
+        include/transformer/transform_engine.hpp
+        include/parser/mapping_parser.hpp
+        include/parser/yaml_parser.hpp
+        include/parser/json_parser.hpp
+        tests/parser/json_parser_test.cpp
+        include/common/result.hpp
 )
-
-# Define library headers
-#set(NEBULA_MAPPER_HEADERS
-#        include/parser/validation/mapping_validation.hpp
-#        include/parser/dynamic_fields_utils.hpp
-#        include/common/string_utils.hpp
-#        include/common/yaml_error_utils.hpp
-#        include/parser/json_parser.hpp
-#        include/parser/yaml_parser.hpp
-#        include/parser/mapping_parser.hpp
-#        include/transformer/transform_engine.hpp
-#        include/transformer/transform_engine.inl
-#        include/graph/schema_manager.hpp
-#        include/graph/statement_generator.hpp
-#        src/parser/json_parser.cpp
-#        src/parser/yaml_parser.cpp
-#        src/parser/mapping_parser.cpp
-#        src/transformer/transform_engine.cpp
-#        src/graph/schema_manager.cpp
-#        src/graph/statement_generator.cpp
-#        include/graph/schema_manager.hpp
-#        include/graph/statement_generator.hpp
-#        include/transformer/transform_engine.hpp
-#        src/parser/validation/mapping_validation.cpp
-#        include/parser/mapping_parser.hpp
-#        include/parser/yaml_parser.hpp
-#        include/parser/json_parser.hpp
-#        tests/parser/json_parser_test.cpp
-#        include/common/result.hpp
-#)
 
 # Create library target
 add_library(nebula_mapper_lib ${NEBULA_MAPPER_SOURCES} ${NEBULA_MAPPER_HEADERS})

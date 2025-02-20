@@ -17,7 +17,7 @@ namespace {
     }
 }
 
-Result<JsonDocument> JsonParser::parse(const std::string& input) {
+Result<JsonDocument> parse(const std::string& input) {
     try {
         return JsonDocument::parse(input);
     } catch (const JsonDocument::exception& e) {
@@ -25,7 +25,7 @@ Result<JsonDocument> JsonParser::parse(const std::string& input) {
     }
 }
 
-Result<JsonDocument> JsonParser::parse_file(const std::string& file_path) {
+Result<JsonDocument> parse_file(const std::string& file_path) {
     try {
         return parse(read_file(file_path));
     } catch (const std::exception& e) {
@@ -33,33 +33,42 @@ Result<JsonDocument> JsonParser::parse_file(const std::string& file_path) {
     }
 }
 
-const std::vector<std::string>& JsonParser::get_parsed_path(const std::string& path) {
-    // First check if path is already cached (read-only)
-    {
-        std::shared_lock read_lock(cache_mutex_);
-        auto it = path_cache_.find(path);
-        if (it != path_cache_.end()) {
-            return it->second;
-        }
-    }
+bool has_path(const JsonDocument& j, const std::string& path) {
+    auto result = detail::navigate_path(j, detail::split_path(path));
+    return std::holds_alternative<JsonDocument>(result);
+}
 
-    // If not in cache, parse and cache it (write lock)
-    {
-        std::unique_lock write_lock(cache_mutex_);
-        // Double-check in case another thread cached it while we were waiting
-        auto it = path_cache_.find(path);
-        if (it != path_cache_.end()) {
-            return it->second;
-        }
-
-        // Parse and cache the path
-        auto segments = common::utils::split_path(path);
-        auto [cache_it, _] = path_cache_.emplace(path, std::move(segments));
-        return cache_it->second;
+Result<std::string> to_string(const JsonDocument& j) {
+    try {
+        return j.dump();
+    } catch (const JsonDocument::exception& e) {
+        return Error{"Failed to convert JSON to string: " + std::string(e.what())};
     }
 }
 
-Result<JsonDocument> JsonParser::navigate_path(
+namespace detail {
+
+std::vector<std::string> split_path(const std::string& path) {
+    std::vector<std::string> segments;
+    std::stringstream ss(path);
+    std::string segment;
+
+    // Skip leading slash if present
+    if (!path.empty() && path[0] == '/') {
+        ss.ignore();
+    }
+
+    // Split on '/' character
+    while (std::getline(ss, segment, '/')) {
+        if (!segment.empty()) {
+            segments.push_back(segment);
+        }
+    }
+
+    return segments;
+}
+
+Result<JsonDocument> navigate_path(
     const JsonDocument& j,
     const std::vector<std::string>& segments) {
 
@@ -98,28 +107,5 @@ Result<JsonDocument> JsonParser::navigate_path(
     return *current;
 }
 
-bool JsonParser::has_path(const JsonDocument& j, const std::string& path) {
-    const auto& segments = get_parsed_path(path);
-    auto result = navigate_path(j, segments);
-    return std::holds_alternative<JsonDocument>(result);
-}
-
-Result<std::string> JsonParser::to_string(const JsonDocument& j) {
-    try {
-        return j.dump();
-    } catch (const JsonDocument::exception& e) {
-        return Error{"Failed to convert JSON to string: " + std::string(e.what())};
-    }
-}
-
-void JsonParser::clear_cache() {
-    std::unique_lock lock(cache_mutex_);
-    path_cache_.clear();
-}
-
-size_t JsonParser::cache_size() const {
-    std::shared_lock lock(cache_mutex_);
-    return path_cache_.size();
-}
-
+} // namespace detail
 } // namespace parser::json
