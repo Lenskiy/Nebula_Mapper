@@ -1,5 +1,0 @@
-if(EXISTS "/home/artem/Dropbox/Repositories/Startups/KoPilot/nebula_mapper/cmake-build-debug/tests/json_parser_test[1]_tests.cmake")
-  include("/home/artem/Dropbox/Repositories/Startups/KoPilot/nebula_mapper/cmake-build-debug/tests/json_parser_test[1]_tests.cmake")
-else()
-  add_test(json_parser_test_NOT_BUILT json_parser_test_NOT_BUILT)
-endif()

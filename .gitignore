@@ -2,3 +2,5 @@ node_modules/
 *.log
 node_modules/
 *.log
+node_modules/
+cmake-build-debug/
