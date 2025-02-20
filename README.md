@@ -131,6 +131,47 @@ if (std::holds_alternative<Error>(result)) {
 }
 ```
 
+## **Setting Up NebulaGraph**
+
+To use **Nebula Mapper**, you need an instance of **NebulaGraph** running. The easiest way to start NebulaGraph is using **Docker Compose**.
+
+### **1. Clone the Nebula Docker Repository**
+```bash
+git clone https://github.com/vesoft-inc/nebula-docker-compose.git
+cd nebula-docker-compose
+docker-compose up -d
+```
+This will launch NebulaGraph with the following services:
+
+    Meta Service (metad)
+    Storage Service (storaged)
+    Graph Service (graphd)
+
+Check if all containers are running:
+```
+docker-compose ps
+```
+
+## Connecting to NebulaGraph
+
+Connect via Nebula Console
+```
+docker run --rm -it --network=nebula-docker-compose_nebula-net \
+vesoft/nebula-console:v3.0.0 --addr=graphd --port=9669 --u=root --p=nebula
+```
+Connect via Web Interface (Nebula Graph Studio)
+```
+docker run --rm -ti -p 7001:7001 \
+  --network=nebula-docker-compose_nebula-net \
+  vesoft/nebula-graph-studio:v3
+```
+Then, open http://127.0.0.1:7001 in your browser and log in with:
+
+    Username: root
+    Password: nebula
+    Address: graphd
+    Port: 9669
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
