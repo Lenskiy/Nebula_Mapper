@@ -1,0 +1,105 @@
+# Maps JSON objects to Nebula Tags
+tags:
+  Place:
+    from: basicInfo
+    keys:           # Changed from single key to multiple keys
+      - cid
+      - placenamefull  # Adding placenamefull as a second key
+    properties:
+      - json: cid
+        type: INT
+        index: true
+      - json: placenamefull
+        type: STRING
+        index: true
+      - json: wpointx
+        type: INT
+      - json: wpointy
+        type: INT
+      - json: phonenum
+        type: STRING
+      - json: mainphotourl
+        type: STRING
+
+  User:
+    from: comment.list[*]
+    keys:           # Multiple keys example
+      - kakaoMapUserId
+      - username    # Adding username as a second key
+    dynamic_fields: true
+    properties:
+      - json: kakaoMapUserId
+        type: STRING
+        index: true
+      - json: username
+        type: STRING
+      - json: profile
+        type: STRING
+      - json: badge
+        type: STRING
+      - json: level.nowLevel
+        name: level_now
+        type: INT
+      - json: profileStatus
+        type: STRING
+      - json: userCommentCount
+        type: INT
+      - json: userCommentAverageScore
+        type: DOUBLE
+
+edges:
+  Comment:
+    from: comment.list[*]
+    source_tag: User
+    target_tag: Place
+    source_keys:    # Updated to multiple keys
+      - kakaoMapUserId
+      - username
+    target_keys:    # Updated to multiple keys
+      - cid
+      - placenamefull
+    properties:
+      - json: commentid
+        type: STRING
+        index: true
+      - json: date
+        type: STRING
+      - json: point
+        type: INT
+      - json: likeCnt
+        type: INT
+      - json: contents
+        type: STRING
+      - json: photoCnt
+        type: INT
+      # Updated transform structure for strengths
+      - json: strengths
+        transform:
+          type: CUSTOM
+          rules:
+            - name: strength_taste
+              type: BOOL
+              condition: "id=5 AND name='맛'"
+            - name: strength_value
+              type: BOOL
+              condition: "id=1 AND name='가성비'"
+            - name: strength_service
+              type: BOOL
+              condition: "id=2 AND name='친절'"
+      # Updated transform structure for photoUrls
+      - json: photoList[*].orgurl
+        name: photoUrls
+        type: STRING
+        transform:
+          type: ARRAY_JOIN
+          delimiter: ","
+
+  has_facilities:
+    from: basicInfo.facilityInfo
+    source_tag: Place
+    target_tag: Facility
+    properties: []  # Kept the propertyless edge
+
+settings:
+  array_delimiter: ","
+  dynamic_tags: true  # Allow adding new properties to tags

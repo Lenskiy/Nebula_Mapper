@@ -1,0 +1,92 @@
+# Maps JSON objects to Nebula Tags
+tags:
+  Place:
+    from: basicInfo
+    key: cid    # Added key field for vertex identification
+    properties:
+      - json: cid
+        type: INT
+        index: true
+      - json: placenamefull
+        type: STRING
+        index: true
+      - json: wpointx
+        type: INT
+      - json: wpointy
+        type: INT
+      - json: phonenum
+        type: STRING
+      - json: mainphotourl
+        type: STRING
+
+  User:
+    from: comment.list[*]
+    key: kakaoMapUserId    # Added key field for user identification
+    dynamic_fields: true  # Allow new properties
+    properties:
+      - json: kakaoMapUserId
+        type: STRING
+        index: true
+      - json: username
+        type: STRING
+      - json: profile
+        type: STRING
+      - json: badge
+        type: STRING
+      - json: level.nowLevel
+        name: level_now
+        type: INT
+      - json: profileStatus
+        type: STRING
+      - json: userCommentCount
+        type: INT
+      - json: userCommentAverageScore
+        type: DOUBLE
+
+edges:
+  Comment:
+    from: comment.list[*]
+    source_tag: User
+    target_tag: Place
+    source_key: kakaoMapUserId  # Added to specify how to link to User
+    target_key: cid            # Added to specify how to link to Place
+    properties:
+      - json: commentid
+        type: STRING
+        index: true
+      - json: date
+        type: STRING
+      - json: point
+        type: INT
+      - json: likeCnt
+        type: INT
+      - json: contents
+        type: STRING
+      - json: photoCnt
+        type: INT
+      # Kept your original transform structure which looks cleaner
+      - json: strengths
+        transform:
+          - name: strength_taste
+            type: BOOL
+            condition: "id=5 AND name='맛'"
+          - name: strength_value
+            type: BOOL
+            condition: "id=1 AND name='가성비'"
+          - name: strength_service
+            type: BOOL
+            condition: "id=2 AND name='친절'"
+      - json: photoList[*].orgurl
+        name: photoUrls
+        type: STRING
+        transform: join
+
+  has_facilities:
+    from: basicInfo.facilityInfo
+    source_tag: Place
+    target_tag: Facility
+    properties: []  # Kept the propertyless edge
+
+settings:
+  array_delimiter: ","
+  dynamic_tags: true  # Allow adding new properties to tags

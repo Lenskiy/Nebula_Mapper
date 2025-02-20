@@ -1,0 +1,32 @@
+# test_mapping.yaml
+tags:
+  User:
+    from: comment.list[*]
+    key: kakaoMapUserId
+    dynamic_fields:
+      enabled: true
+      allowed_types:
+        - STRING
+        - INT64
+        - DOUBLE
+      excluded_properties:
+        - internal_id
+        - _private_data
+    properties:
+      - json: kakaoMapUserId
+        type: STRING
+        index: true
+      - json: username
+        type: STRING
+
+  Place:
+    from: basicInfo
+    key: cid
+    dynamic_fields:
+      enabled: false  # Don't allow dynamic fields for places
+    properties:
+      - json: cid
+        type: INT
+        index: true
+      - json: placenamefull
+        type: STRING
